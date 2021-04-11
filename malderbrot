@@ -1,0 +1,82 @@
+<html>
+    <head>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.15/paper-full.min.js" integrity="sha512-ovjLI1ZcZe6bw+ImQ21r+sv8q/Vwob2kq7tFidK6E1LWfi0T4uobbmpfEU1//a9h9o5Kkt+MnMWf6rWlg0EiMw==" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.15/paper-core.min.js" integrity="sha512-n8kxMM6jgawwNHl1HJmOXz+l8bMYaq0SrYrbCijlUnUUNXuD4ajzKmdXSTFarH3PViz54jfiSNUUAfTOhIDmRg==" crossorigin="anonymous"></script>
+    </head>
+    <body>
+        <canvas id="root" width="600" height="600" style="border: 1px black solid;"></canvas>
+
+        <script type="text/paperscript" canvas="root">
+            var fieldSize = 600;
+            var gloablFrom = -2;
+            var gloablTo = 2;
+
+            var pixelSize = fieldSize / (Math.abs(gloablFrom) + gloablTo + 1) ;
+
+            //from decart to canvas
+            var drawPixel = function(x, y, color){
+                var x1 = (x + gloablTo) * pixelSize;
+                var y1 = Math.abs(y + gloablFrom) * pixelSize;
+
+                var x2 = x1 + pixelSize;
+                var y2 = y1 + pixelSize;
+
+                var rectangle = new Rectangle(new Point(x1, y1), new Point(x2, y2));
+                var path = new Path.Rectangle(rectangle);
+                path.fillColor = color || 'black';
+                path.selected = false;
+            }
+
+            //random color
+            window.colors = {};
+            var getRandomColor = function(number) {
+                if(!window.colors[number]){
+                    var letters = '0123456789ABCDEF',
+                    color = '#',
+                    generatedNumber,
+                    i;
+                    for (i = 0; i < 6; i++) {
+                        generatedNumber = Math.floor(Math.random() * 16);
+                        color += letters[generatedNumber];
+                    }
+                    window.colors[number] = color;
+                }
+            
+                return window.colors[number];
+            };
+
+            //malderbrot function
+            var maldIteration = function(cx, cy, maxIter){
+                var iterations = 0;
+                var x = 0;
+                var y = 0;
+                var cTemp = 0;
+                var xx = 0;
+                var yy = 0;
+                var xy = 0;
+                while(xx + yy < 4 && iterations < maxIter){
+                    xy = x * y;
+                    xx = x * x;
+                    yy = y * y;
+                    x = xx - yy + cx;
+                    y = xy + xy + cy;
+                    iterations++;
+                }
+                return iterations;
+            };
+
+            for(var x = gloablFrom; x <= gloablTo; x=x+0.01){
+                for(var y = gloablFrom; y <= gloablTo; y=y+0.01){
+                    var malIter = maldIteration(x,y,200);
+                    var color = 'white';
+                    if(malIter == 1){
+                        color =  'black';
+                    }
+                    //drawPixel(x,y,color);
+                    drawPixel(x,y,  getRandomColor(malIter));
+                }
+            }
+        </script>
+    </body>
+</html>
